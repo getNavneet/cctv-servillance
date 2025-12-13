@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Register from "./pages/Register";
 import AdminMap from "./pages/Admin";
 import Home from "./pages/Home";
+import PostRegistration from "./pages/PostRegistration";
 // import AdminMap from "./pages/AdminRajOnly";
 
 export default function App() {
@@ -17,6 +18,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<AdminMap />} />
+        <Route path="/post-registration" element={<PostRegistration />} />
+
       </Routes>
     </BrowserRouter>
   );

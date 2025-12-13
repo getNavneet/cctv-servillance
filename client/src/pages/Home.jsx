@@ -1,5 +1,9 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
+
 function Home() {
+    const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
@@ -18,7 +22,7 @@ function Home() {
           <a href="#faq" className="text-gray-600 hover:text-gray-900">
             FAQ
           </a>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700">
+          <button  className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700">
             Register Camera
           </button>
         </nav>
@@ -38,10 +42,10 @@ function Home() {
               <strong className="text-gray-900">optional</strong> and always under your control.
             </p>
             <div className="flex flex-wrap gap-3 mb-3">
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 shadow-sm">
+              <button onClick={() => navigate("/register")} className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 shadow-sm">
                 Register your camera
               </button>
-              <button className="bg-white text-gray-900 px-6 py-3 rounded-full font-medium border border-gray-300 hover:bg-gray-50">
+              <button  className="bg-white text-gray-900 px-6 py-3 rounded-full font-medium border border-gray-300 hover:bg-gray-50">
                 View how it works
               </button>
             </div>

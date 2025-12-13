@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { MapPin, Loader2, CheckCircle2, User, Mail, Phone, Camera, Compass } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const navigate = useNavigate();
+  
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -120,6 +123,16 @@ export default function Register() {
       setStatus({
         type: "success",
         message: "Thank You ! Registration successful! 🎉",
+      });
+
+      navigate("/post-registration", { 
+        state: { 
+          userData: {
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email
+          }
+        } 
       });
 
       setForm({
