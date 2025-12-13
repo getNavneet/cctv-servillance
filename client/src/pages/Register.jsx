@@ -92,7 +92,7 @@ export default function Register() {
     }
 
     setSubmitting(true);
-    setStatus({ type: "info", message: "Creating your account..." });
+    setStatus({ type: "info", message: "Registering Your Camera..." });
 
     try {
       const response = await fetch("/api/users/register", {
@@ -106,7 +106,7 @@ export default function Register() {
       if (data.success) {
         setStatus({
           type: "success",
-          message: "Registration successful! 🎉",
+          message: "Thank You ! Registration successful! 🎉",
         });
 
         setForm({
@@ -170,7 +170,7 @@ export default function Register() {
                 type="text"
                 value={form.name}
                 onChange={handleChange("name")}
-                placeholder="John Doe"
+                placeholder="Navneet"
                 className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -187,7 +187,7 @@ export default function Register() {
                 type="email"
                 value={form.email}
                 onChange={handleChange("email")}
-                placeholder="you@example.com"
+                placeholder="navneet@gmail.com"
                 className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -254,7 +254,7 @@ export default function Register() {
             disabled={submitting || !locationCaptured}
             className="w-full py-4 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 disabled:opacity-50"
           >
-            {submitting ? "Creating Account..." : "Create Account"}
+            {submitting ? "Creating Account..." : "Register your Camera"}
           </button>
         </div>
       </div>
