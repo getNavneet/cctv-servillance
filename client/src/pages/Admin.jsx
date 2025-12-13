@@ -33,13 +33,14 @@ export default function AdminMap() {
       center={RAJASTHAN_CENTER}
       zoom={7}
       minZoom={6}
-      maxZoom={14}
+      maxZoom={19}
       maxBounds={RAJASTHAN_BOUNDS}
       maxBoundsViscosity={1}
       style={{ height: "90vh", width: "100%" }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        maxZoom={19}
         noWrap
       />
 
