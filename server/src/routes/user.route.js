@@ -43,31 +43,33 @@ router.get("/reverse", async (req, res) => {
     );
 
     const data = await response.json();
+    
+    if (data.error) {
+      return res.status(404).json({
+        success: false,
+        message: "Location not found"
+      });
+    }
+
     const a = data.address || {};
 
+    // Flatten the response to match frontend expectations
     res.json({
       success: true,
-      data: {
-        coordinates: {
-          lat: Number(lat),
-          lng: Number(lng)
-        },
-        address: {
-          house: a.house_number || "",
-          road: a.road || "",
-          locality: a.suburb || a.village || "",
-          subDistrict: a.county || "",
-          district: a.state_district || "",
-          city: a.city || a.town || "",
-          state: a.state || "",
-          pincode: a.postcode || "",
-          country: a.country || ""
-        },
-        formattedAddress: data.display_name || ""
-      }
+      pincode: a.postcode || "",
+      city: a.city || a.town || "",
+      state: a.state || "",
+      locality: a.suburb || a.village || a.neighbourhood || "",
+      // Optionally include full details if needed
+      coordinates: {
+        lat: Number(lat),
+        lng: Number(lng)
+      },
+      formattedAddress: data.display_name || ""
     });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({
       success: false,
       message: "Reverse geocoding failed"
