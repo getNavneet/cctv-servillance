@@ -4,21 +4,96 @@ const User = require("../models/user.model");
 // Register user
 router.post("/register", async (req, res) => {
   try {
-    const { name, pincode, locality, lat, lng } = req.body;
+    const { name, email, phone, lat, lng, cameraType, coverageArea } = req.body;
 
+    // Validation
+    if (!name || !name.trim()) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Name is required" 
+      });
+    }
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Email is required" 
+      });
+    }
+
+    if (!phone || !phone.trim()) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Phone number is required" 
+      });
+    }
+
+    if (!lat || !lng) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Location coordinates are required" 
+      });
+    }
+
+    // Validate coordinates
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Invalid coordinates" 
+      });
+    }
+
+    // Optional: Check for duplicate email
+    const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "This email is already registered" 
+      });
+    }
+
+    // Create user
     const user = await User.create({
-      name,
-      pincode,
-      locality,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone.trim(),
+      cameraType: cameraType || "",
+      coverageArea: coverageArea || "",
       location: {
         type: "Point",
-        coordinates: [lng, lat]
+        coordinates: [parseFloat(lng), parseFloat(lat)] // [lng, lat] for GeoJSON
       }
     });
 
-    res.json({ success: true, user });
+    res.json({ 
+      success: true, 
+      message: "Camera registered successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        cameraType: user.cameraType,
+        coverageArea: user.coverageArea,
+        createdAt: user.createdAt
+      }
+    });
+
   } catch (e) {
-    res.status(500).json({ error: "Something went wrong" });
+    console.error("Registration error:", e);
+    
+    // Handle mongoose validation errors
+    if (e.name === "ValidationError") {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Validation failed: " + Object.values(e.errors).map(err => err.message).join(", ")
+      });
+    }
+
+    res.status(500).json({ 
+      success: false, 
+      error: "Something went wrong. Please try again." 
+    });
   }
 });
 

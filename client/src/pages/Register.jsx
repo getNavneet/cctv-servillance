@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MapPin, Loader2, CheckCircle2, User, Mail, Phone } from "lucide-react";
+import { MapPin, Loader2, CheckCircle2, User, Mail, Phone, Camera, Compass } from "lucide-react";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -8,6 +8,8 @@ export default function Register() {
     phone: "",
     lat: null,
     lng: null,
+    cameraType: "",
+    coverageArea: "",
   });
 
   const [status, setStatus] = useState({ type: "", message: "" });
@@ -71,66 +73,80 @@ export default function Register() {
   };
 
   const submit = async () => {
-    if (!form.name.trim()) {
-      setStatus({ type: "error", message: "Please enter your name" });
-      return;
+  if (!form.name.trim()) {
+    setStatus({ type: "error", message: "Please enter your name" });
+    return;
+  }
+  if (!form.email.trim()) {
+    setStatus({ type: "error", message: "Please enter your email" });
+    return;
+  }
+  if (!form.phone.trim()) {
+    setStatus({ type: "error", message: "Please enter your phone number" });
+    return;
+  }
+  if (!form.lat || !form.lng) {
+    setStatus({
+      type: "error",
+      message: "Please allow location access first",
+    });
+    return;
+  }
+
+  setSubmitting(true);
+  setStatus({ type: "info", message: "Registering Your Camera..." });
+
+  try {
+    const response = await fetch("http://localhost:5000/api/users/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    // ✅ FIX: Check if response is OK and has content
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status} ${response.statusText}`);
     }
-    if (!form.email.trim()) {
-      setStatus({ type: "error", message: "Please enter your email" });
-      return;
+
+    // ✅ FIX: Check if response has JSON content before parsing
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("Server did not return JSON response");
     }
-    if (!form.phone.trim()) {
-      setStatus({ type: "error", message: "Please enter your phone number" });
-      return;
-    }
-    if (!form.lat || !form.lng) {
+
+    const data = await response.json();
+
+    if (data.success) {
       setStatus({
-        type: "error",
-        message: "Please allow location access first",
+        type: "success",
+        message: "Thank You ! Registration successful! 🎉",
       });
-      return;
+
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        lat: null,
+        lng: null,
+        cameraType: "",
+        coverageArea: "",
+      });
+
+      setLocationCaptured(false);
+    } else {
+      throw new Error(data.error || "Registration failed");
     }
+  } catch (err) {
+    console.error("Registration error:", err);
+    setStatus({
+      type: "error",
+      message: err.message || "Registration failed. Please try again.",
+    });
+  } finally {
+    setSubmitting(false);
+  }
+};
 
-    setSubmitting(true);
-    setStatus({ type: "info", message: "Registering Your Camera..." });
-
-    try {
-      const response = await fetch("/api/users/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setStatus({
-          type: "success",
-          message: "Thank You ! Registration successful! 🎉",
-        });
-
-        setForm({
-          name: "",
-          email: "",
-          phone: "",
-          lat: null,
-          lng: null,
-        });
-
-        setLocationCaptured(false);
-      } else {
-        throw new Error(data.error);
-      }
-    } catch (err) {
-      console.error(err);
-      setStatus({
-        type: "error",
-        message: "Registration failed. Please try again.",
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const getStatusColor = () => {
     switch (status.type) {
@@ -149,12 +165,12 @@ export default function Register() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 mb-4 shadow-lg">
-            <User className="w-8 h-8 text-white" />
+            <Camera className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Create Account
+            Register Camera
           </h1>
-          <p className="text-gray-600">Join us in just a few steps</p>
+          <p className="text-gray-600">Help make your area safer</p>
         </div>
 
         {/* Card */}
@@ -162,7 +178,7 @@ export default function Register() {
           {/* Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Full Name
+              Full Name <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -171,7 +187,7 @@ export default function Register() {
                 value={form.name}
                 onChange={handleChange("name")}
                 placeholder="Navneet"
-                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
               />
             </div>
           </div>
@@ -179,7 +195,7 @@ export default function Register() {
           {/* Email */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Email Address
+              Email Address <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -188,7 +204,7 @@ export default function Register() {
                 value={form.email}
                 onChange={handleChange("email")}
                 placeholder="navneet@gmail.com"
-                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
               />
             </div>
           </div>
@@ -196,7 +212,7 @@ export default function Register() {
           {/* Phone */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Phone Number
+              Phone Number <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -205,8 +221,55 @@ export default function Register() {
                 value={form.phone}
                 onChange={handleChange("phone")}
                 placeholder="10-digit mobile number"
-                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
               />
+            </div>
+          </div>
+
+          {/* Camera Type (Optional) */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Camera Type <span className="text-gray-400 text-xs">(Optional)</span>
+            </label>
+            <div className="relative">
+              <Camera className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <select
+                value={form.cameraType}
+                onChange={handleChange("cameraType")}
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition appearance-none bg-white"
+              >
+                <option value="">Select camera type</option>
+                <option value="dome">Dome Camera</option>
+                <option value="bullet">Bullet Camera</option>
+                <option value="ptz">PTZ Camera</option>
+                <option value="ip">IP Camera</option>
+                <option value="analog">Analog Camera</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Coverage Area (Optional) */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Coverage Area <span className="text-gray-400 text-xs">(Optional)</span>
+            </label>
+            <div className="relative">
+              <Compass className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <select
+                value={form.coverageArea}
+                onChange={handleChange("coverageArea")}
+                className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition appearance-none bg-white"
+              >
+                <option value="">Select coverage direction</option>
+                <option value="front-gate">Front Gate/Entrance</option>
+                <option value="back-gate">Back Gate/Exit</option>
+                <option value="parking">Parking Area</option>
+                <option value="street-facing">Street Facing</option>
+                <option value="inside-premises">Inside Premises</option>
+                <option value="corner-view">Corner/Side View</option>
+                <option value="full-coverage">360° Full Coverage</option>
+              </select>
             </div>
           </div>
 
@@ -215,11 +278,11 @@ export default function Register() {
             type="button"
             onClick={getLocation}
             disabled={loadingLocation || locationCaptured}
-            className={`w-full py-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2 ${
+            className={`w-full py-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2 transition ${
               locationCaptured
                 ? "bg-emerald-500"
-                : "bg-gradient-to-r from-indigo-600 to-purple-600"
-            } disabled:opacity-60`}
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+            } disabled:opacity-60 disabled:cursor-not-allowed`}
           >
             {loadingLocation ? (
               <>
@@ -252,10 +315,14 @@ export default function Register() {
           <button
             onClick={submit}
             disabled={submitting || !locationCaptured}
-            className="w-full py-4 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 disabled:opacity-50"
+            className="w-full py-4 rounded-xl bg-gray-900 text-white font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
-            {submitting ? "Creating Account..." : "Register your Camera"}
+            {submitting ? "Registering Camera..." : "Register Camera"}
           </button>
+
+          <p className="text-xs text-gray-500 text-center">
+            Fields marked with <span className="text-red-500">*</span> are required
+          </p>
         </div>
       </div>
     </div>
