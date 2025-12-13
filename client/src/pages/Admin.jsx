@@ -1,34 +1,61 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
 import api from "../api";
+
+// IMPORT CUSTOM ICON
+import markerIcon from "../assets/marker1.png";
+
+// Create custom marker
+const customIcon = new L.Icon({
+  iconUrl: markerIcon,
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40]
+});
+
+// Rajasthan config
+const RAJASTHAN_CENTER = [27.0238, 74.2179];
+const RAJASTHAN_BOUNDS = [
+  [23.3, 69.3],
+  [30.2, 78.3]
+];
 
 export default function AdminMap() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    api.get("/users").then((res) => setUsers(res.data));
+    api.get("/users").then(res => setUsers(res.data));
   }, []);
 
   return (
     <MapContainer
-      center={[28.6139, 77.209]}
-      zoom={10}
+      center={RAJASTHAN_CENTER}
+      zoom={7}
+      minZoom={6}
+      maxZoom={14}
+      maxBounds={RAJASTHAN_BOUNDS}
+      maxBoundsViscosity={1}
       style={{ height: "90vh", width: "100%" }}
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        noWrap
+      />
 
-      {users.map((u) => (
+      {users.map(user => (
         <Marker
-          key={u._id}
+          key={user._id}
           position={[
-            u.location.coordinates[1],
-            u.location.coordinates[0]
+            user.location.coordinates[1],
+            user.location.coordinates[0]
           ]}
+          icon={customIcon}
         >
           <Popup>
-            <b>{u.name}</b><br />
-            {u.locality}<br />
-            {u.pincode}
+            <b>{user.name}</b><br />
+            {user.locality}<br />
+            {user.pincode}
           </Popup>
         </Marker>
       ))}
