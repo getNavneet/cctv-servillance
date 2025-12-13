@@ -55,8 +55,9 @@ export default function AdminMap() {
         >
           <Popup>
             <b>{user.name}</b><br />
-            {user.contact}<br />
-            {user.pincode}
+            {user.phone}<br />
+            {user.cameraType}
+            {user.coverageArea}
           </Popup>
         </Marker>
       ))}
