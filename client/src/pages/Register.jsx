@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import api from "../api";
 
@@ -42,7 +43,7 @@ export default function Register() {
         try {
           // Backend should call some reverse‑geocoding API (e.g. Nominatim, Google, Mapbox)
           // and return { pincode, city, state, locality }
-          const { data } = await api.get("/geo/reverse", {
+          const { data } = await api.get("/users/reverse", {
             params: { lat, lng },
           });
 

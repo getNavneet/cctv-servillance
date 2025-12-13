@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React,{ useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import api from "../api";
@@ -55,7 +55,7 @@ export default function AdminMap() {
         >
           <Popup>
             <b>{user.name}</b><br />
-            {user.locality}<br />
+            {user.contact}<br />
             {user.pincode}
           </Popup>
         </Marker>
