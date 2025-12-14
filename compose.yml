@@ -38,7 +38,7 @@ services:
     image: mongo:latest
     container_name: mongodb-container
     ports:
-      - "27018:27017"  
+      - "27018:27017"    # 2708 for atlas, 27017 for local
     volumes:
       - mongo-data:/data/db
     environment:

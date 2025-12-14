@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_URL;
   
   const [form, setForm] = useState({
     name: "",
@@ -100,7 +101,7 @@ export default function Register() {
   setStatus({ type: "info", message: "Registering Your Camera..." });
 
   try {
-    const response = await fetch("http://localhost:5000/api/users/register", {
+    const response = await fetch(`${apiUrl}/users/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
